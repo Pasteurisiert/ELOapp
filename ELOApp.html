@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Bewertung">
+  <title>Bewertungssystem</title>
+  <style>
+    :root {
+      --bg-color: #f2f2f7;
+      --card-bg: #ffffff;
+      --border-color: #e5e5ea;
+      --text-main: #000000;
+      --text-muted: #8e8e93;
+      --accent-blue: #007aff;
+      --accent-orange: #ff9500;
+      --accent-red: #ff3b30;
+      --accent-green: #34c759;
+      --accent-mint: #00c7be;
+      --safe-top: env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 30px);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    header {
+      padding: 16px 20px 8px 20px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 20px 0 8px 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-group {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border-color);
+      position: relative;
+    }
+
+    .form-row:last-child {
+      border-bottom: none;
+    }
+
+    .form-row label {
+      width: 35%;
+      font-size: 16px;
+    }
+
+    .form-row input, .form-row select {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      outline: none;
+      color: var(--text-main);
+      width: 100%;
+    }
+
+    .action-btn {
+      color: var(--accent-blue);
+      font-size: 15px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      display: block;
+      width: 100%;
+      text-align: left;
+    }
+
+    .btn-submit {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      width: 100%;
+      margin-top: 14px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-submit:active {
+      opacity: 0.8;
+    }
+
+    /* List & Items */
+    .item-list-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border-color);
+      background-color: var(--card-bg);
+      cursor: pointer;
+    }
+
+    .item-list-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-rank {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 36px;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .item-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .item-stats {
+      text-align: right;
+    }
+
+    .item-score {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .item-comp {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Modal Sheets */
+    .sheet-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: flex-end;
+      z-index: 1000;
+    }
+
+    .sheet-content {
+      background: var(--bg-color);
+      width: 100%;
+      max-height: 90vh;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      padding: 20px 16px calc(var(--safe-bottom) + 20px) 16px;
+      overflow-y: auto;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .sheet-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .sheet-nav-btn {
+      color: var(--accent-blue);
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Comparison Cards */
+    .compare-boxes {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .compare-card {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px 8px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .compare-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .rate-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .rate-btn:active {
+      filter: brightness(0.9);
+    }
+
+    .filter-select {
+      background: none;
+      border: none;
+      color: var(--accent-blue);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .backup-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .btn-secondary {
+      background: #8e8e93;
+      font-size: 14px;
+      padding: 10px;
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <h1>Bewertungssystem</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Neues Objekt hinzufügen -->
+    <div class="section-title">Neues Objekt hinzufügen</div>
+    <div class="card-group">
+      <div class="form-row">
+        <input type="text" id="itemName" placeholder="Name / Objekt" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label for="itemCategory">Hauptkategorie</label>
+        <select id="itemCategory"></select>
+      </div>
+      <button class="action-btn" onclick="promptNewCategory()">➕ Neue Kategorie erstellen</button>
+      <div class="form-row">
+        <input type="text" id="itemExtra1" placeholder="Zusatz 1 (z.B. Ort/Format)" list="listExtra1" autocomplete="off">
+        <datalist id="listExtra1"></datalist>
+      </div>
+      <div class="form-row">
+        <input type="text" id="itemExtra2" placeholder="Zusatz 2 (z.B. Genre/Küche)" list="listExtra2" autocomplete="off">
+        <datalist id="listExtra2"></datalist>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="saveAndStartComparison()">
+      <span>▶</span> Speichern & Vergleich starten
+    </button>
+
+    <!-- Bestenliste -->
+    <div class="section-title">
+      <span>🏆 Bestenliste</span>
+      <select class="filter-select" id="filterCategory" onchange="renderList()">
+        <option value="Alle Kategorien">Alle Kategorien</option>
+      </select>
+    </div>
+
+    <div class="card-group" id="rankingList"></div>
+
+    <!-- Backup Import/Export -->
+    <div class="backup-actions">
+      <button class="btn-submit btn-secondary" onclick="exportData()">📥 Backup exportieren</button>
+      <button class="btn-submit btn-secondary" onclick="document.getElementById('importFile').click()">📤 Backup laden</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <!-- Comparison Sheet -->
+  <div class="sheet-backdrop" id="comparisonSheet">
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <span class="sheet-title" id="compareTitle">⚖️ Vergleich</span>
+        <button class="sheet-nav-btn" style="font-weight: 600;" onclick="closeComparison()">Fertig</button>
+      </div>
+      
+      <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px;" id="compareSessionCount">Session-Vergleiche: 0</p>
+
+      <div id="compareActiveArea">
+        <div class="compare-boxes">
+          <div class="compare-card">
+            <div class="compare-badge" style="color: var(--accent-blue);">Zum Bewerten</div>
+            <div style="font-size: 16px; font-weight: 700;" id="targetName">-</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="targetDetails">-</div>
+          </div>
+          <div style="font-weight: 800; color: var(--accent-orange);">VS</div>
+          <div class="compare-card">
+            <div class="compare-badge" style="color: var(--text-muted);">Vergleichs-Objekt</div>
+            <div style="font-size: 16px; font-weight: 700;" id="compName">-</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="compDetails">-</div>
+          </div>
+        </div>
+
+        <div>
+          <button class="rate-btn" style="background: rgba(255, 59, 48, 0.15); color: var(--accent-red);" onclick="rate(0.0)">🔴 Viel schlechter</button>
+          <button class="rate-btn" style="background: rgba(255, 149, 0, 0.15); color: var(--accent-orange);" onclick="rate(0.25)">🟠 Schlechter</button>
+          <button class="rate-btn" style="background: rgba(142, 142, 147, 0.15); color: var(--text-muted);" onclick="rate(0.5)">⚪ Gleich gut</button>
+          <button class="rate-btn" style="background: rgba(52, 199, 89, 0.15); color: var(--accent-green);" onclick="rate(0.75)">🟢 Besser</button>
+          <button class="rate-btn" style="background: rgba(0, 199, 190, 0.15); color: var(--accent-mint);" onclick="rate(1.0)">🌟 Viel besser</button>
+        </div>
+
+        <button class="btn-submit" style="background: #e5e5ea; color: #000; margin-top: 10px;" onclick="pickNextCompareItem()">Anderes Objekt</button>
+      </div>
+
+      <div id="compareEmptyArea" style="display: none; text-align: center; padding: 20px 0;">
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px;">Kein anderes Objekt zum Vergleichen in dieser Kategorie vorhanden.</p>
+        <button class="btn-submit" onclick="closeComparison()">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Sheet -->
+  <div class="sheet-backdrop" id="editSheet">
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <button class="sheet-nav-btn" onclick="closeEdit()">Abbrechen</button>
+        <span class="sheet-title">Bearbeiten</span>
+        <button class="sheet-nav-btn" style="font-weight: 700;" onclick="saveEditChanges()">Speichern</button>
+      </div>
+
+      <div class="card-group">
+        <div class="form-row">
+          <label>Name</label>
+          <input type="text" id="editName">
+        </div>
+        <div class="form-row">
+          <label>Kategorie</label>
+          <select id="editCategory"></select>
+        </div>
+        <div class="form-row">
+          <label>Zusatz 1</label>
+          <input type="text" id="editExtra1" list="listExtra1">
+        </div>
+        <div class="form-row">
+          <label>Zusatz 2</label>
+          <input type="text" id="editExtra2" list="listExtra2">
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <div class="card-group">
+          <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="resetSingleElo()">Elo für dieses Objekt zurücksetzen</button>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 6px 12px 0 12px;">Setzt die Elo-Punkte nur für dieses Objekt auf 1000 und die Vergleiche auf 0 zurück.</p>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <div class="card-group">
+          <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="deleteCurrentEditItem()">Objekt löschen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data Store
+    let defaultCategories = ["Restaurant", "Buch", "Film", "Spiel", "Sonstiges"];
+    let store = {
+      categories: JSON.parse(localStorage.getItem("categories")) || defaultCategories,
+      items: JSON.parse(localStorage.getItem("items")) || []
+    };
+
+    function persist() {
+      localStorage.setItem("categories", JSON.stringify(store.categories));
+      localStorage.setItem("items", JSON.stringify(store.items));
+      updateCategoryDropdowns();
+      updateDataLists();
+    }
+
+    // State
+    let activeTargetItem = null;
+    let activeCompareItem = null;
+    let compareSessionCount = 0;
+    let currentEditItemId = null;
+
+    // Initialization
+    function init() {
+      updateCategoryDropdowns();
+      updateDataLists();
+      renderList();
+    }
+
+    function updateCategoryDropdowns() {
+      const selectMain = document.getElementById("itemCategory");
+      const selectFilter = document.getElementById("filterCategory");
+      const selectEdit = document.getElementById("editCategory");
+
+      const prevFilter = selectFilter.value;
+      const prevMain = selectMain.value;
+
+      selectMain.innerHTML = store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
+      selectEdit.innerHTML = store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
+      selectFilter.innerHTML = `<option value="Alle Kategorien">Alle Kategorien</option>` + 
+        store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
+
+      if (store.categories.includes(prevMain)) selectMain.value = prevMain;
+      if (prevFilter === "Alle Kategorien" || store.categories.includes(prevFilter)) selectFilter.value = prevFilter;
+    }
+
+    function updateDataLists() {
+      const unique1 = [...new Set(store.items.map(i => i.extra1.trim()).filter(v => v && v !== "-"))].sort();
+      const unique2 = [...new Set(store.items.map(i => i.extra2.trim()).filter(v => v && v !== "-"))].sort();
+
+      document.getElementById("listExtra1").innerHTML = unique1.map(v => `<option value="${v}">`).join("");
+      document.getElementById("listExtra2").innerHTML = unique2.map(v => `<option value="${v}">`).join("");
+    }
+
+    function promptNewCategory() {
+      const cat = prompt("Name der neuen Kategorie:");
+      if (cat && cat.trim() && !store.categories.includes(cat.trim())) {
+        store.categories.push(cat.trim());
+        persist();
+        document.getElementById("itemCategory").value = cat.trim();
+      }
+    }
+
+    // Elo Berechnung
+    function updateElo(itemA, itemB, outcomeScore) {
+      const idxA = store.items.findIndex(i => i.id === itemA.id);
+      const idxB = store.items.findIndex(i => i.id === itemB.id);
+      if (idxA === -1 || idxB === -1) return;
+
+      const rA = store.items[idxA].score;
+      const rB = store.items[idxB].score;
+
+      const eA = 1.0 / (1.0 + Math.pow(10.0, (rB - rA) / 400.0));
+      const eB = 1.0 - eA;
+      const k = 32.0;
+
+      store.items[idxA].score = rA + k * (outcomeScore - eA);
+      store.items[idxB].score = rB + k * ((1.0 - outcomeScore) - eB);
+      store.items[idxA].comparisons += 1;
+      store.items[idxB].comparisons += 1;
+
+      persist();
+      renderList();
+    }
+
+    // Speichern & Vergleich starten
+    function saveAndStartComparison() {
+      const nameInput = document.getElementById("itemName");
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      const category = document.getElementById("itemCategory").value;
+      const extra1 = document.getElementById("itemExtra1").value.trim();
+      const extra2 = document.getElementById("itemExtra2").value.trim();
+
+      let targetItem;
+      const existingIdx = store.items.findIndex(i => i.name.toLowerCase() === name.toLowerCase());
+
+      if (existingIdx !== -1) {
+        store.items[existingIdx].category = category;
+        store.items[existingIdx].extra1 = extra1;
+        store.items[existingIdx].extra2 = extra2;
+        targetItem = store.items[existingIdx];
+      } else {
+        targetItem = {
+          id: crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random(),
+          name: name,
+          category: category,
+          extra1: extra1,
+          extra2: extra2,
+          score: 1000.0,
+          comparisons: 0
+        };
+        store.items.push(targetItem);
+      }
+
+      persist();
+      renderList();
+
+      nameInput.value = "";
+      document.getElementById("itemExtra1").value = "";
+      document.getElementById("itemExtra2").value = "";
+
+      openComparison(targetItem);
+    }
+
+    // Vergleichs-Sheet Modal
+    function openComparison(item) {
+      activeTargetItem = item;
+      compareSessionCount = 0;
+      document.getElementById("compareTitle").innerText = `⚖️ Vergleich in ${item.category}`;
+      document.getElementById("compareSessionCount").innerText = `Session-Vergleiche: ${compareSessionCount}`;
+      document.getElementById("comparisonSheet").style.display = "flex";
+      pickNextCompareItem();
+    }
+
+    function closeComparison() {
+      document.getElementById("comparisonSheet").style.display = "none";
+      activeTargetItem = null;
+      activeCompareItem = null;
+    }
+
+    function pickNextCompareItem() {
+      const available = store.items.filter(i => i.id !== activeTargetItem.id && i.category === activeTargetItem.category);
+      if (available.length === 0) {
+        document.getElementById("compareActiveArea").style.display = "none";
+        document.getElementById("compareEmptyArea").style.display = "block";
+        return;
+      }
+
+      document.getElementById("compareActiveArea").style.display = "block";
+      document.getElementById("compareEmptyArea").style.display = "none";
+
+      activeCompareItem = available[Math.floor(Math.random() * available.length)];
+
+      document.getElementById("targetName").innerText = activeTargetItem.name;
+      document.getElementById("targetDetails").innerText = `${activeTargetItem.extra1 || '-'} | ${activeTargetItem.extra2 || '-'}`;
+
+      document.getElementById("compName").innerText = activeCompareItem.name;
+      document.getElementById("compDetails").innerText = `${activeCompareItem.extra1 || '-'} | ${activeCompareItem.extra2 || '-'}`;
+    }
+
+    function rate(outcome) {
+      if (!activeCompareItem || !activeTargetItem) return;
+      updateElo(activeTargetItem, activeCompareItem, outcome);
+      compareSessionCount++;
+      document.getElementById("compareSessionCount").innerText = `Session-Vergleiche: ${compareSessionCount}`;
+      pickNextCompareItem();
+    }
+
+    // Bestenliste Render
+    function renderList() {
+      const filter = document.getElementById("filterCategory").value;
+      const listEl = document.getElementById("rankingList");
+
+      let filtered = filter === "Alle Kategorien" 
+        ? [...store.items] 
+        : store.items.filter(i => i.category === filter);
+
+      filtered.sort((a, b) => b.score - a.score);
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">Keine Einträge vorhanden</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map((item, idx) => `
+        <div class="item-list-row" onclick="openEdit('${item.id}')">
+          <div class="item-rank">#${idx + 1}</div>
+          <div class="item-details">
+            <div class="item-name">${item.name}</div>
+            <div class="item-sub">${item.category}${item.extra1 ? ' • ' + item.extra1 : ''}${item.extra2 ? ' • ' + item.extra2 : ''}</div>
+          </div>
+          <div class="item-stats">
+            <div class="item-score">${Math.round(item.score)} Elo</div>
+            <div class="item-comp">${item.comparisons} Vergleiche</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Bearbeiten Sheet
+    function openEdit(id) {
+      const item = store.items.find(i => i.id === id);
+      if (!item) return;
+
+      currentEditItemId = id;
+      document.getElementById("editName").value = item.name;
+      document.getElementById("editCategory").value = item.category;
+      document.getElementById("editExtra1").value = item.extra1;
+      document.getElementById("editExtra2").value = item.extra2;
+
+      document.getElementById("editSheet").style.display = "flex";
+    }
+
+    function closeEdit() {
+      document.getElementById("editSheet").style.display = "none";
+      currentEditItemId = null;
+    }
+
+    function saveEditChanges() {
+      const idx = store.items.findIndex(i => i.id === currentEditItemId);
+      if (idx !== -1) {
+        store.items[idx].name = document.getElementById("editName").value.trim();
+        store.items[idx].category = document.getElementById("editCategory").value;
+        store.items[idx].extra1 = document.getElementById("editExtra1").value.trim();
+        store.items[idx].extra2 = document.getElementById("editExtra2").value.trim();
+        persist();
+        renderList();
+      }
+      closeEdit();
+    }
+
+    function resetSingleElo() {
+      const item = store.items.find(i => i.id === currentEditItemId);
+      if (!item) return;
+      if (confirm(`Möchtest du die Elo-Punkte von '${item.name}' wirklich auf 1000.0 zurücksetzen?`)) {
+        item.score = 1000.0;
+        item.comparisons = 0;
+        persist();
+        renderList();
+        closeEdit();
+      }
+    }
+
+    function deleteCurrentEditItem() {
+      const item = store.items.find(i => i.id === currentEditItemId);
+      if (!item) return;
+      if (confirm(`Möchtest du '${item.name}' wirklich löschen?`)) {
+        store.items = store.items.filter(i => i.id !== currentEditItemId);
+        persist();
+        renderList();
+        closeEdit();
+      }
+    }
+
+    // Backup Import/Export
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "bewertungen.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.categories && imported.items) {
+            store = imported;
+            persist();
+            renderList();
+            alert("Daten erfolgreich wiederhergestellt!");
+          }
+        } catch(err) {
+          alert("Fehler beim Lesen der Backup-Datei.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
