@@ -10,8 +10,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1021.8654771108584,
-      "comparisons": 6,
+      "score": 1034.238010533857,
+      "comparisons": 10,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -104,6 +104,15 @@
       "extra2": "Café",
       "score": 1007.6624425214447,
       "comparisons": 1
+    },
+    {
+      "id": "0744b68d-65d8-490d-8ae2-91245bc94dad",
+      "name": "Pizza Casper",
+      "category": "Restaurant",
+      "extra1": "Fislisbach",
+      "extra2": "Pizzeria",
+      "score": 987.6274665770014,
+      "comparisons": 4
     }
   ]
 }
