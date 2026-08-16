@@ -10,8 +10,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1024.7080646230204,
-      "comparisons": 12,
+      "score": 1039.5721305167042,
+      "comparisons": 13,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -122,6 +122,15 @@
       "extra2": "Sachbuch",
       "score": 1009.5299459108368,
       "comparisons": 2
+    },
+    {
+      "id": "f025c3e7-0d1d-48d2-bcc7-f6b212205edb",
+      "name": "MacBaden",
+      "category": "Restaurant",
+      "extra1": "",
+      "extra2": "",
+      "score": 985.1359341063163,
+      "comparisons": 1
     }
   ]
 }
