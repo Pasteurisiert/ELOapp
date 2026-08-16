@@ -42,12 +42,22 @@
 
     header {
       padding: 16px 20px 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     header h1 {
       font-size: 28px;
       font-weight: 700;
       letter-spacing: -0.5px;
+    }
+
+    .header-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
     }
 
     .container {
@@ -134,7 +144,6 @@
       opacity: 0.8;
     }
 
-    /* List & Items */
     .item-list-row {
       display: flex;
       align-items: center;
@@ -192,7 +201,6 @@
       font-size: 15px;
     }
 
-    /* Modal Sheets */
     .sheet-backdrop {
       position: fixed;
       top: 0;
@@ -241,7 +249,6 @@
       cursor: pointer;
     }
 
-    /* Comparison Cards */
     .compare-boxes {
       display: flex;
       gap: 8px;
@@ -289,29 +296,27 @@
       outline: none;
     }
 
-    .backup-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 24px;
-    }
-
-    .btn-secondary {
-      background: #8e8e93;
-      font-size: 14px;
-      padding: 10px;
-      margin-top: 0;
+    .status-badge {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #e5e5ea;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="container">
-      <h1>Bewertungssystem</h1>
-    </div>
+  <header class="container">
+    <h1>Bewertungssystem</h1>
+    <button class="header-btn" onclick="openSyncSheet()">⚙️</button>
   </header>
 
   <div class="container">
+    <div id="syncStatusBadge" class="status-badge" style="display:none;"></div>
+
     <!-- Neues Objekt hinzufügen -->
     <div class="section-title">Neues Objekt hinzufügen</div>
     <div class="card-group">
@@ -347,12 +352,9 @@
 
     <div class="card-group" id="rankingList"></div>
 
-    <!-- Backup Import/Export -->
-    <div class="backup-actions">
-      <button class="btn-submit btn-secondary" onclick="exportData()">📥 Backup exportieren</button>
-      <button class="btn-submit btn-secondary" onclick="document.getElementById('importFile').click()">📤 Backup laden</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-    </div>
+    <button class="btn-submit" style="background: #34c759; margin-top: 20px;" onclick="syncWithGitHub(true)">
+      ☁️ Jetzt mit GitHub synchronisieren
+    </button>
   </div>
 
   <!-- Comparison Sheet -->
@@ -430,7 +432,6 @@
         <div class="card-group">
           <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="resetSingleElo()">Elo für dieses Objekt zurücksetzen</button>
         </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin: 6px 12px 0 12px;">Setzt die Elo-Punkte nur für dieses Objekt auf 1000 und die Vergleiche auf 0 zurück.</p>
       </div>
 
       <div style="margin-top: 20px;">
@@ -441,13 +442,48 @@
     </div>
   </div>
 
+  <!-- Sync Settings Sheet -->
+  <div class="sheet-backdrop" id="syncSheet">
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <button class="sheet-nav-btn" onclick="closeSyncSheet()">Schließen</button>
+        <span class="sheet-title">Cloud-Synchronisation</span>
+        <button class="sheet-nav-btn" style="font-weight: 700;" onclick="saveSyncConfig()">Speichern</button>
+      </div>
+
+      <div class="card-group">
+        <div class="form-row">
+          <label>GitHub User</label>
+          <input type="text" id="ghUser" placeholder="z.B. maxmustermann">
+        </div>
+        <div class="form-row">
+          <label>Repository</label>
+          <input type="text" id="ghRepo" placeholder="z.B. ELOapp">
+        </div>
+        <div class="form-row">
+          <label>Token</label>
+          <input type="password" id="ghToken" placeholder="ghp_...">
+        </div>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin: 8px 12px 20px 12px;">
+        Der Token wird ausschließlich lokal in diesem Browser gespeichert und niemals übertragen außer direkt an die offizielle GitHub-API.
+      </p>
+
+      <div class="card-group">
+        <button class="action-btn" style="color: var(--accent-blue); text-align: center;" onclick="loadFromGitHub()">Daten von GitHub herunterladen</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Data Store
     let defaultCategories = ["Restaurant", "Buch", "Film", "Spiel", "Sonstiges"];
     let store = {
       categories: JSON.parse(localStorage.getItem("categories")) || defaultCategories,
       items: JSON.parse(localStorage.getItem("items")) || []
     };
+
+    let ghConfig = JSON.parse(localStorage.getItem("ghConfig")) || { user: "", repo: "", token: "" };
+    let currentFileSha = null;
 
     function persist() {
       localStorage.setItem("categories", JSON.stringify(store.categories));
@@ -456,17 +492,18 @@
       updateDataLists();
     }
 
-    // State
     let activeTargetItem = null;
     let activeCompareItem = null;
     let compareSessionCount = 0;
     let currentEditItemId = null;
 
-    // Initialization
     function init() {
       updateCategoryDropdowns();
       updateDataLists();
       renderList();
+      if (ghConfig.token && ghConfig.user && ghConfig.repo) {
+        loadFromGitHub(false);
+      }
     }
 
     function updateCategoryDropdowns() {
@@ -489,7 +526,6 @@
     function updateDataLists() {
       const unique1 = [...new Set(store.items.map(i => i.extra1.trim()).filter(v => v && v !== "-"))].sort();
       const unique2 = [...new Set(store.items.map(i => i.extra2.trim()).filter(v => v && v !== "-"))].sort();
-
       document.getElementById("listExtra1").innerHTML = unique1.map(v => `<option value="${v}">`).join("");
       document.getElementById("listExtra2").innerHTML = unique2.map(v => `<option value="${v}">`).join("");
     }
@@ -503,7 +539,6 @@
       }
     }
 
-    // Elo Berechnung
     function updateElo(itemA, itemB, outcomeScore) {
       const idxA = store.items.findIndex(i => i.id === itemA.id);
       const idxB = store.items.findIndex(i => i.id === itemB.id);
@@ -511,7 +546,6 @@
 
       const rA = store.items[idxA].score;
       const rB = store.items[idxB].score;
-
       const eA = 1.0 / (1.0 + Math.pow(10.0, (rB - rA) / 400.0));
       const eB = 1.0 - eA;
       const k = 32.0;
@@ -525,7 +559,6 @@
       renderList();
     }
 
-    // Speichern & Vergleich starten
     function saveAndStartComparison() {
       const nameInput = document.getElementById("itemName");
       const name = nameInput.value.trim();
@@ -566,7 +599,6 @@
       openComparison(targetItem);
     }
 
-    // Vergleichs-Sheet Modal
     function openComparison(item) {
       activeTargetItem = item;
       compareSessionCount = 0;
@@ -580,6 +612,7 @@
       document.getElementById("comparisonSheet").style.display = "none";
       activeTargetItem = null;
       activeCompareItem = null;
+      syncWithGitHub(false);
     }
 
     function pickNextCompareItem() {
@@ -589,15 +622,12 @@
         document.getElementById("compareEmptyArea").style.display = "block";
         return;
       }
-
       document.getElementById("compareActiveArea").style.display = "block";
       document.getElementById("compareEmptyArea").style.display = "none";
 
       activeCompareItem = available[Math.floor(Math.random() * available.length)];
-
       document.getElementById("targetName").innerText = activeTargetItem.name;
       document.getElementById("targetDetails").innerText = `${activeTargetItem.extra1 || '-'} | ${activeTargetItem.extra2 || '-'}`;
-
       document.getElementById("compName").innerText = activeCompareItem.name;
       document.getElementById("compDetails").innerText = `${activeCompareItem.extra1 || '-'} | ${activeCompareItem.extra2 || '-'}`;
     }
@@ -610,15 +640,11 @@
       pickNextCompareItem();
     }
 
-    // Bestenliste Render
     function renderList() {
       const filter = document.getElementById("filterCategory").value;
       const listEl = document.getElementById("rankingList");
 
-      let filtered = filter === "Alle Kategorien" 
-        ? [...store.items] 
-        : store.items.filter(i => i.category === filter);
-
+      let filtered = filter === "Alle Kategorien" ? [...store.items] : store.items.filter(i => i.category === filter);
       filtered.sort((a, b) => b.score - a.score);
 
       if (filtered.length === 0) {
@@ -641,17 +667,14 @@
       `).join("");
     }
 
-    // Bearbeiten Sheet
     function openEdit(id) {
       const item = store.items.find(i => i.id === id);
       if (!item) return;
-
       currentEditItemId = id;
       document.getElementById("editName").value = item.name;
       document.getElementById("editCategory").value = item.category;
       document.getElementById("editExtra1").value = item.extra1;
       document.getElementById("editExtra2").value = item.extra2;
-
       document.getElementById("editSheet").style.display = "flex";
     }
 
@@ -669,6 +692,7 @@
         store.items[idx].extra2 = document.getElementById("editExtra2").value.trim();
         persist();
         renderList();
+        syncWithGitHub(false);
       }
       closeEdit();
     }
@@ -681,6 +705,7 @@
         item.comparisons = 0;
         persist();
         renderList();
+        syncWithGitHub(false);
         closeEdit();
       }
     }
@@ -692,42 +717,120 @@
         store.items = store.items.filter(i => i.id !== currentEditItemId);
         persist();
         renderList();
+        syncWithGitHub(false);
         closeEdit();
       }
     }
 
-    // Backup Import/Export
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "bewertungen.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+    // --- GitHub API Sync ---
+    function openSyncSheet() {
+      document.getElementById("ghUser").value = ghConfig.user || "";
+      document.getElementById("ghRepo").value = ghConfig.repo || "";
+      document.getElementById("ghToken").value = ghConfig.token || "";
+      document.getElementById("syncSheet").style.display = "flex";
     }
 
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (imported.categories && imported.items) {
-            store = imported;
+    function closeSyncSheet() {
+      document.getElementById("syncSheet").style.display = "none";
+    }
+
+    function saveSyncConfig() {
+      ghConfig.user = document.getElementById("ghUser").value.trim();
+      ghConfig.repo = document.getElementById("ghRepo").value.trim();
+      ghConfig.token = document.getElementById("ghToken").value.trim();
+      localStorage.setItem("ghConfig", JSON.stringify(ghConfig));
+      closeSyncSheet();
+      loadFromGitHub(true);
+    }
+
+    async function loadFromGitHub(notify = false) {
+      if (!ghConfig.token || !ghConfig.user || !ghConfig.repo) return;
+      const url = `https://api.github.com/repos/${ghConfig.user}/${ghConfig.repo}/contents/bewertungen.json`;
+      
+      try {
+        const res = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${ghConfig.token}`,
+            "Accept": "application/vnd.github.v3+json"
+          }
+        });
+
+        if (res.status === 200) {
+          const data = await res.json();
+          currentFileSha = data.sha;
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+          if (decoded.items && decoded.categories) {
+            store = decoded;
             persist();
             renderList();
-            alert("Daten erfolgreich wiederhergestellt!");
+            showStatus("Cloud-Daten erfolgreich geladen");
+            if (notify) alert("Daten erfolgreich von GitHub synchronisiert!");
           }
-        } catch(err) {
-          alert("Fehler beim Lesen der Backup-Datei.");
+        } else if (res.status === 404) {
+          syncWithGitHub(false); // Datei existiert noch nicht -> anlegen
         }
-      };
-      reader.readAsText(file);
+      } catch (err) {
+        showStatus("Fehler beim Cloud-Laden");
+      }
     }
 
-    // Start
+    async function syncWithGitHub(notify = false) {
+      if (!ghConfig.token || !ghConfig.user || !ghConfig.repo) {
+        if (notify) openSyncSheet();
+        return;
+      }
+
+      showStatus("Speichere in GitHub...");
+      const url = `https://api.github.com/repos/${ghConfig.user}/${ghConfig.repo}/contents/bewertungen.json`;
+      const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(store, null, 2))));
+
+      try {
+        if (!currentFileSha) {
+          const checkRes = await fetch(url, {
+            headers: { "Authorization": `Bearer ${ghConfig.token}` }
+          });
+          if (checkRes.ok) {
+            const fileData = await checkRes.json();
+            currentFileSha = fileData.sha;
+          }
+        }
+
+        const bodyData = {
+          message: "Update bewertungen.json via Web-App",
+          content: contentBase64,
+          ...(currentFileSha ? { sha: currentFileSha } : {})
+        };
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${ghConfig.token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(bodyData)
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          currentFileSha = resData.content.sha;
+          showStatus("Cloud-Stand synchronisiert");
+          if (notify) alert("Erfolgreich auf GitHub gesichert!");
+        } else {
+          showStatus("Sync-Fehler (SHA Konflikt)");
+          if (notify) alert("Konflikt beim Speichern. Bitte zuerst 'Daten von GitHub herunterladen'.");
+        }
+      } catch (e) {
+        showStatus("Netzwerkfehler beim Sync");
+      }
+    }
+
+    function showStatus(text) {
+      const badge = document.getElementById("syncStatusBadge");
+      badge.innerText = text;
+      badge.style.display = "block";
+      setTimeout(() => { badge.style.display = "none"; }, 4000);
+    }
+
     init();
   </script>
 </body>
