@@ -10,8 +10,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1014.5344217896381,
-      "comparisons": 5,
+      "score": 1021.8654771108584,
+      "comparisons": 6,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -85,6 +85,15 @@
       "extra1": "Digital",
       "extra2": "Roman",
       "score": 1000.3521748264072,
+      "comparisons": 1
+    },
+    {
+      "id": "854e4225-919b-4ded-b6c9-b120f722bd02",
+      "name": "Kafi Hoi Zäme",
+      "category": "Restaurant",
+      "extra1": "Baden",
+      "extra2": "Café",
+      "score": 992.6689446787798,
       "comparisons": 1
     }
   ]
