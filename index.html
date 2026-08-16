@@ -36,8 +36,6 @@
       color: var(--text-main);
       padding-top: var(--safe-top);
       padding-bottom: calc(var(--safe-bottom) + 30px);
-      user-select: none;
-      -webkit-user-select: none;
     }
 
     header {
@@ -144,6 +142,7 @@
       opacity: 0.8;
     }
 
+    /* Item List */
     .item-list-row {
       display: flex;
       align-items: center;
@@ -166,6 +165,7 @@
 
     .item-details {
       flex: 1;
+      cursor: pointer;
     }
 
     .item-name {
@@ -181,6 +181,7 @@
 
     .item-stats {
       text-align: right;
+      cursor: pointer;
     }
 
     .item-score {
@@ -194,6 +195,22 @@
       color: var(--text-muted);
     }
 
+    .btn-edit-inline {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--accent-blue);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 12px;
+    }
+
+    .btn-edit-inline:active {
+      background: rgba(0, 122, 255, 0.25);
+    }
+
     .empty-state {
       padding: 24px;
       text-align: center;
@@ -201,6 +218,7 @@
       font-size: 15px;
     }
 
+    /* Modal Sheets */
     .sheet-backdrop {
       position: fixed;
       top: 0;
@@ -249,6 +267,7 @@
       cursor: pointer;
     }
 
+    /* Comparison Cards */
     .compare-boxes {
       display: flex;
       gap: 8px;
@@ -470,7 +489,7 @@
       </p>
 
       <div class="card-group">
-        <button class="action-btn" style="color: var(--accent-blue); text-align: center;" onclick="loadFromGitHub()">Daten von GitHub herunterladen</button>
+        <button class="action-btn" style="color: var(--accent-blue); text-align: center;" onclick="loadFromGitHub(true)">Daten von GitHub herunterladen</button>
       </div>
     </div>
   </div>
@@ -514,20 +533,30 @@
       const prevFilter = selectFilter.value;
       const prevMain = selectMain.value;
 
-      selectMain.innerHTML = store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
-      selectEdit.innerHTML = store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
+      selectMain.innerHTML = store.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      selectEdit.innerHTML = store.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
       selectFilter.innerHTML = `<option value="Alle Kategorien">Alle Kategorien</option>` + 
-        store.categories.map(c => `<option value="${c}">${c}</option>`).join("");
+        store.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
 
       if (store.categories.includes(prevMain)) selectMain.value = prevMain;
       if (prevFilter === "Alle Kategorien" || store.categories.includes(prevFilter)) selectFilter.value = prevFilter;
     }
 
     function updateDataLists() {
-      const unique1 = [...new Set(store.items.map(i => i.extra1.trim()).filter(v => v && v !== "-"))].sort();
-      const unique2 = [...new Set(store.items.map(i => i.extra2.trim()).filter(v => v && v !== "-"))].sort();
-      document.getElementById("listExtra1").innerHTML = unique1.map(v => `<option value="${v}">`).join("");
-      document.getElementById("listExtra2").innerHTML = unique2.map(v => `<option value="${v}">`).join("");
+      const unique1 = [...new Set(store.items.map(i => (i.extra1 || '').trim()).filter(v => v && v !== "-"))].sort();
+      const unique2 = [...new Set(store.items.map(i => (i.extra2 || '').trim()).filter(v => v && v !== "-"))].sort();
+      document.getElementById("listExtra1").innerHTML = unique1.map(v => `<option value="${escapeHtml(v)}">`).join("");
+      document.getElementById("listExtra2").innerHTML = unique2.map(v => `<option value="${escapeHtml(v)}">`).join("");
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function promptNewCategory() {
@@ -540,8 +569,8 @@
     }
 
     function updateElo(itemA, itemB, outcomeScore) {
-      const idxA = store.items.findIndex(i => i.id === itemA.id);
-      const idxB = store.items.findIndex(i => i.id === itemB.id);
+      const idxA = store.items.findIndex(i => String(i.id) === String(itemA.id));
+      const idxB = store.items.findIndex(i => String(i.id) === String(itemB.id));
       if (idxA === -1 || idxB === -1) return;
 
       const rA = store.items[idxA].score;
@@ -616,7 +645,7 @@
     }
 
     function pickNextCompareItem() {
-      const available = store.items.filter(i => i.id !== activeTargetItem.id && i.category === activeTargetItem.category);
+      const available = store.items.filter(i => String(i.id) !== String(activeTargetItem.id) && i.category === activeTargetItem.category);
       if (available.length === 0) {
         document.getElementById("compareActiveArea").style.display = "none";
         document.getElementById("compareEmptyArea").style.display = "block";
@@ -653,28 +682,29 @@
       }
 
       listEl.innerHTML = filtered.map((item, idx) => `
-        <div class="item-list-row" onclick="openEdit('${item.id}')">
+        <div class="item-list-row">
           <div class="item-rank">#${idx + 1}</div>
-          <div class="item-details">
-            <div class="item-name">${item.name}</div>
-            <div class="item-sub">${item.category}${item.extra1 ? ' • ' + item.extra1 : ''}${item.extra2 ? ' • ' + item.extra2 : ''}</div>
+          <div class="item-details" onclick="triggerEdit('${String(item.id)}')">
+            <div class="item-name">${escapeHtml(item.name)}</div>
+            <div class="item-sub">${escapeHtml(item.category)}${item.extra1 ? ' • ' + escapeHtml(item.extra1) : ''}${item.extra2 ? ' • ' + escapeHtml(item.extra2) : ''}</div>
           </div>
-          <div class="item-stats">
+          <div class="item-stats" onclick="triggerEdit('${String(item.id)}')">
             <div class="item-score">${Math.round(item.score)} Elo</div>
             <div class="item-comp">${item.comparisons} Vergleiche</div>
           </div>
+          <button class="btn-edit-inline" onclick="triggerEdit('${String(item.id)}')">✏️</button>
         </div>
       `).join("");
     }
 
-    function openEdit(id) {
-      const item = store.items.find(i => i.id === id);
+    function triggerEdit(id) {
+      const item = store.items.find(i => String(i.id) === String(id));
       if (!item) return;
-      currentEditItemId = id;
+      currentEditItemId = item.id;
       document.getElementById("editName").value = item.name;
       document.getElementById("editCategory").value = item.category;
-      document.getElementById("editExtra1").value = item.extra1;
-      document.getElementById("editExtra2").value = item.extra2;
+      document.getElementById("editExtra1").value = item.extra1 || "";
+      document.getElementById("editExtra2").value = item.extra2 || "";
       document.getElementById("editSheet").style.display = "flex";
     }
 
@@ -684,7 +714,7 @@
     }
 
     function saveEditChanges() {
-      const idx = store.items.findIndex(i => i.id === currentEditItemId);
+      const idx = store.items.findIndex(i => String(i.id) === String(currentEditItemId));
       if (idx !== -1) {
         store.items[idx].name = document.getElementById("editName").value.trim();
         store.items[idx].category = document.getElementById("editCategory").value;
@@ -698,7 +728,7 @@
     }
 
     function resetSingleElo() {
-      const item = store.items.find(i => i.id === currentEditItemId);
+      const item = store.items.find(i => String(i.id) === String(currentEditItemId));
       if (!item) return;
       if (confirm(`Möchtest du die Elo-Punkte von '${item.name}' wirklich auf 1000.0 zurücksetzen?`)) {
         item.score = 1000.0;
@@ -711,10 +741,10 @@
     }
 
     function deleteCurrentEditItem() {
-      const item = store.items.find(i => i.id === currentEditItemId);
+      const item = store.items.find(i => String(i.id) === String(currentEditItemId));
       if (!item) return;
       if (confirm(`Möchtest du '${item.name}' wirklich löschen?`)) {
-        store.items = store.items.filter(i => i.id !== currentEditItemId);
+        store.items = store.items.filter(i => String(i.id) !== String(currentEditItemId));
         persist();
         renderList();
         syncWithGitHub(false);
@@ -722,7 +752,7 @@
       }
     }
 
-    // --- GitHub API Sync ---
+    // GitHub API Sync
     function openSyncSheet() {
       document.getElementById("ghUser").value = ghConfig.user || "";
       document.getElementById("ghRepo").value = ghConfig.repo || "";
@@ -767,7 +797,7 @@
             if (notify) alert("Daten erfolgreich von GitHub synchronisiert!");
           }
         } else if (res.status === 404) {
-          syncWithGitHub(false); // Datei existiert noch nicht -> anlegen
+          syncWithGitHub(false);
         }
       } catch (err) {
         showStatus("Fehler beim Cloud-Laden");
