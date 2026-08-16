@@ -93,7 +93,16 @@
       "category": "Restaurant",
       "extra1": "Baden",
       "extra2": "Café",
-      "score": 992.6689446787798,
+      "score": 985.006502157335,
+      "comparisons": 2
+    },
+    {
+      "id": "e9e3d080-62ca-40d9-aeee-7bb729a69664",
+      "name": "Alexanders",
+      "category": "Restaurant",
+      "extra1": "Fislisbach",
+      "extra2": "Café",
+      "score": 1007.6624425214447,
       "comparisons": 1
     }
   ]
