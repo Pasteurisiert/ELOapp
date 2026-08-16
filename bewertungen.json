@@ -10,8 +10,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1034.238010533857,
-      "comparisons": 10,
+      "score": 1024.7080646230204,
+      "comparisons": 12,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -113,6 +113,15 @@
       "extra2": "Pizzeria",
       "score": 987.6274665770014,
       "comparisons": 4
+    },
+    {
+      "id": "80d072cc-8fff-477d-aec6-c77aa4983700",
+      "name": "Das Klima-Paradox - Heuberger",
+      "category": "Buch",
+      "extra1": "Digital",
+      "extra2": "Sachbuch",
+      "score": 1009.5299459108368,
+      "comparisons": 2
     }
   ]
 }
