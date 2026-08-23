@@ -4,7 +4,8 @@
     "Buch",
     "Film",
     "Spiel",
-    "Sonstiges"
+    "Sonstiges",
+    "Museum"
   ],
   "items": [
     {
@@ -122,6 +123,15 @@
       "extra2": "Sachbuch",
       "score": 1009.5299459108368,
       "comparisons": 2
+    },
+    {
+      "id": "f856ddfd-0e9a-45b9-9621-0fb1899a7eba",
+      "name": "Kunsthaus Zürich - Vilhelm Hammershøi",
+      "category": "Museum",
+      "extra1": "Zürich",
+      "extra2": "Kunst",
+      "score": 1000,
+      "comparisons": 0
     }
   ]
 }
