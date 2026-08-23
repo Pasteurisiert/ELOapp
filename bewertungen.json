@@ -11,8 +11,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1039.5721305167042,
-      "comparisons": 13,
+      "score": 1045.757606207199,
+      "comparisons": 14,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -132,6 +132,15 @@
       "extra2": "Kunst",
       "score": 1000,
       "comparisons": 0
+    },
+    {
+      "id": "4d5cc138-75a1-4469-a4f6-78340e3f5cf8",
+      "name": "Yooji's",
+      "category": "Restaurant",
+      "extra1": "Zürich",
+      "extra2": "Asiatisch",
+      "score": 993.8145243095054,
+      "comparisons": 1
     }
   ]
 }
