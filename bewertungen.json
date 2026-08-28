@@ -11,8 +11,8 @@
     {
       "name": "Simon Says Taste Taiwan",
       "category": "Restaurant",
-      "score": 1045.757606207199,
-      "comparisons": 14,
+      "score": 1001.3203168905669,
+      "comparisons": 18,
       "extra1": "Zürich",
       "extra2": "Asiatisch"
     },
@@ -141,6 +141,15 @@
       "extra2": "Asiatisch",
       "score": 993.8145243095054,
       "comparisons": 1
+    },
+    {
+      "id": "15be6ef1-f513-4acd-8e06-788b0cdb452e",
+      "name": "Dungeon Crawler Carl - Dinniman",
+      "category": "Buch",
+      "extra1": "Hörbuch",
+      "extra2": "SF",
+      "score": 1044.437289316632,
+      "comparisons": 4
     }
   ]
 }
