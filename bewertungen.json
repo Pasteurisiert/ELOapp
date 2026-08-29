@@ -9,12 +9,92 @@
   ],
   "items": [
     {
+      "name": "Simon Says Taste Taiwan",
+      "category": "Restaurant",
+      "score": 1001.3203168905669,
+      "comparisons": 18,
+      "extra1": "Zürich",
+      "extra2": "Asiatisch"
+    },
+    {
+      "name": "Roter Turm",
+      "category": "Restaurant",
+      "score": 1007.6085685678364,
+      "comparisons": 2,
+      "extra1": "Baden",
+      "extra2": "Allgemein"
+    },
+    {
+      "name": "PLÜ (Casino)",
+      "category": "Restaurant",
+      "score": 1043.3205358891,
+      "comparisons": 4,
+      "extra1": "Baden",
+      "extra2": "Allgemein"
+    },
+    {
+      "name": "Lunch 5",
+      "category": "Restaurant",
+      "extra1": "Zürich",
+      "extra2": "Kantine",
+      "score": 948.8907734282956,
+      "comparisons": 4
+    },
+    {
+      "name": "1984 - Orwell",
+      "category": "Buch",
+      "extra1": "Hörbuch",
+      "extra2": "Dystopie",
+      "score": 1007.296439724444,
+      "comparisons": 4
+    },
+    {
+      "name": "Cai Sushi",
+      "category": "Restaurant",
+      "extra1": "Baden",
+      "extra2": "Sushi",
+      "score": 984.7256822805771,
+      "comparisons": 4
+    },
+    {
+      "name": "Im Krieg - Tchaikovsky",
+      "category": "Buch",
+      "extra1": "Hörbuch",
+      "extra2": "SF",
+      "score": 991.9992188217666,
+      "comparisons": 2
+    },
+    {
+      "name": "System Kollaps - Wells",
+      "category": "Buch",
+      "extra1": "Hörbuch",
+      "extra2": "SF",
+      "score": 1008.3683485189694,
+      "comparisons": 1
+    },
+    {
+      "name": "Fake History - Teeuwisse",
+      "category": "Buch",
+      "extra1": "Digital",
+      "extra2": "Geschichte",
+      "score": 991.9838181084128,
+      "comparisons": 2
+    },
+    {
+      "name": "Twist",
+      "category": "Buch",
+      "extra1": "Digital",
+      "extra2": "Roman",
+      "score": 1000.3521748264072,
+      "comparisons": 1
+    },
+    {
       "id": "854e4225-919b-4ded-b6c9-b120f722bd02",
       "name": "Kafi Hoi Zäme",
       "category": "Restaurant",
       "extra1": "Baden",
       "extra2": "Café",
-      "score": 980,
+      "score": 985.006502157335,
       "comparisons": 2
     },
     {
@@ -25,6 +105,15 @@
       "extra2": "Café",
       "score": 1007.6624425214447,
       "comparisons": 1
+    },
+    {
+      "id": "0744b68d-65d8-490d-8ae2-91245bc94dad",
+      "name": "Pizza Casper",
+      "category": "Restaurant",
+      "extra1": "Fislisbach",
+      "extra2": "Pizzeria",
+      "score": 987.6274665770014,
+      "comparisons": 4
     },
     {
       "id": "80d072cc-8fff-477d-aec6-c77aa4983700",
@@ -59,26 +148,8 @@
       "category": "Buch",
       "extra1": "Hörbuch",
       "extra2": "SF",
-      "score": 1000,
-      "comparisons": 0
-    },
-    {
-      "id": "6210fa95-23da-42ce-b6c1-15e44ffabfca",
-      "name": "Simon Says Taste Taiwan",
-      "category": "Restaurant",
-      "extra1": "Zürich",
-      "extra2": "Asiatisch",
-      "score": 1030.7203322015052,
-      "comparisons": 2
-    },
-    {
-      "id": "20284c3e-b798-4e88-af07-4d9be95d8279",
-      "name": "Pizza Casper",
-      "category": "Restaurant",
-      "extra1": "Fislisbach",
-      "extra2": "Pizzeria",
-      "score": 1000,
-      "comparisons": 0
+      "score": 1044.437289316632,
+      "comparisons": 4
     }
   ]
 }
