@@ -68,7 +68,16 @@
       "category": "Restaurant",
       "extra1": "Zürich",
       "extra2": "Asiatisch",
-      "score": 1015.4304645102634,
+      "score": 1030.7203322015052,
+      "comparisons": 2
+    },
+    {
+      "id": "20284c3e-b798-4e88-af07-4d9be95d8279",
+      "name": "Pizza Casper",
+      "category": "Restaurant",
+      "extra1": "Fislisbach",
+      "extra2": "Pizzeria",
+      "score": 984.7101323087581,
       "comparisons": 1
     }
   ]
