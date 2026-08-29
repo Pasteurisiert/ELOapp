@@ -32,8 +32,8 @@
       "category": "Restaurant",
       "extra1": "Fislisbach",
       "extra2": "Pizzeria",
-      "score": 987.6274665770014,
-      "comparisons": 4
+      "score": 972.197002066738,
+      "comparisons": 5
     },
     {
       "id": "80d072cc-8fff-477d-aec6-c77aa4983700",
@@ -70,6 +70,15 @@
       "extra2": "SF",
       "score": 1000,
       "comparisons": 0
+    },
+    {
+      "id": "6210fa95-23da-42ce-b6c1-15e44ffabfca",
+      "name": "Simon Says Taste Taiwan",
+      "category": "Restaurant",
+      "extra1": "Zürich",
+      "extra2": "Asiatisch",
+      "score": 1015.4304645102634,
+      "comparisons": 1
     }
   ]
 }
