@@ -18,7 +18,6 @@
       --accent-orange: #ff9500;
       --accent-red: #ff3b30;
       --accent-green: #34c759;
-      --accent-mint: #00c7be;
       --safe-top: env(safe-area-inset-top, 20px);
       --safe-bottom: env(safe-area-inset-bottom, 20px);
     }
@@ -402,11 +401,9 @@
         </div>
 
         <div>
-          <button class="rate-btn" style="background: rgba(255, 59, 48, 0.15); color: var(--accent-red);" onclick="rate(0.0)">🔴 Viel schlechter</button>
-          <button class="rate-btn" style="background: rgba(255, 149, 0, 0.15); color: var(--accent-orange);" onclick="rate(0.25)">🟠 Schlechter</button>
+          <button class="rate-btn" style="background: rgba(255, 59, 48, 0.15); color: var(--accent-red);" onclick="rate(0.0)">🔴 Schlechter</button>
           <button class="rate-btn" style="background: rgba(142, 142, 147, 0.15); color: var(--text-muted);" onclick="rate(0.5)">⚪ Gleich gut</button>
-          <button class="rate-btn" style="background: rgba(52, 199, 89, 0.15); color: var(--accent-green);" onclick="rate(0.75)">🟢 Besser</button>
-          <button class="rate-btn" style="background: rgba(0, 199, 190, 0.15); color: var(--accent-mint);" onclick="rate(1.0)">🌟 Viel besser</button>
+          <button class="rate-btn" style="background: rgba(52, 199, 89, 0.15); color: var(--accent-green);" onclick="rate(1.0)">🟢 Besser</button>
         </div>
 
         <button class="btn-submit" style="background: #e5e5ea; color: #000; margin-top: 10px;" onclick="pickNextCompareItem()">Anderes Objekt</button>
@@ -438,6 +435,10 @@
           <select id="editCategory"></select>
         </div>
         <div class="form-row">
+          <label>Elo-Punkte</label>
+          <input type="number" id="editScore" step="1" min="0">
+        </div>
+        <div class="form-row">
           <label>Zusatz 1</label>
           <input type="text" id="editExtra1" list="listExtra1">
         </div>
@@ -447,13 +448,17 @@
         </div>
       </div>
 
+      <button class="btn-submit" onclick="startComparisonFromEdit()">
+        <span>⚖️</span> Weitere Vergleiche durchführen
+      </button>
+
       <div style="margin-top: 24px;">
         <div class="card-group">
-          <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="resetSingleElo()">Elo für dieses Objekt zurücksetzen</button>
+          <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="resetSingleElo()">Elo auf Standard (1000) zurücksetzen</button>
         </div>
       </div>
 
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 12px;">
         <div class="card-group">
           <button class="action-btn" style="color: var(--accent-red); text-align: center;" onclick="deleteCurrentEditItem()">Objekt löschen</button>
         </div>
@@ -703,6 +708,7 @@
       currentEditItemId = item.id;
       document.getElementById("editName").value = item.name;
       document.getElementById("editCategory").value = item.category;
+      document.getElementById("editScore").value = Math.round(item.score);
       document.getElementById("editExtra1").value = item.extra1 || "";
       document.getElementById("editExtra2").value = item.extra2 || "";
       document.getElementById("editSheet").style.display = "flex";
@@ -718,6 +724,10 @@
       if (idx !== -1) {
         store.items[idx].name = document.getElementById("editName").value.trim();
         store.items[idx].category = document.getElementById("editCategory").value;
+        const newScore = parseFloat(document.getElementById("editScore").value);
+        if (!isNaN(newScore)) {
+          store.items[idx].score = newScore;
+        }
         store.items[idx].extra1 = document.getElementById("editExtra1").value.trim();
         store.items[idx].extra2 = document.getElementById("editExtra2").value.trim();
         persist();
@@ -725,6 +735,26 @@
         syncWithGitHub(false);
       }
       closeEdit();
+    }
+
+    function startComparisonFromEdit() {
+      const idx = store.items.findIndex(i => String(i.id) === String(currentEditItemId));
+      if (idx === -1) return;
+      
+      store.items[idx].name = document.getElementById("editName").value.trim();
+      store.items[idx].category = document.getElementById("editCategory").value;
+      const newScore = parseFloat(document.getElementById("editScore").value);
+      if (!isNaN(newScore)) {
+        store.items[idx].score = newScore;
+      }
+      store.items[idx].extra1 = document.getElementById("editExtra1").value.trim();
+      store.items[idx].extra2 = document.getElementById("editExtra2").value.trim();
+      
+      const targetItem = store.items[idx];
+      persist();
+      renderList();
+      closeEdit();
+      openComparison(targetItem);
     }
 
     function resetSingleElo() {
