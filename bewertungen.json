@@ -103,8 +103,8 @@
       "category": "Restaurant",
       "extra1": "Fislisbach",
       "extra2": "Café",
-      "score": 1007.6624425214447,
-      "comparisons": 1
+      "score": 1023.3096312025345,
+      "comparisons": 2
     },
     {
       "id": "0744b68d-65d8-490d-8ae2-91245bc94dad",
@@ -168,6 +168,15 @@
       "extra2": "Vegetarisch",
       "score": 968.927883958578,
       "comparisons": 2
+    },
+    {
+      "id": "f6af1715-4d1b-4a1e-bfcf-75703766dbca",
+      "name": "Poushe",
+      "category": "Restaurant",
+      "extra1": "Zürich",
+      "extra2": "Café",
+      "score": 984.3528113189102,
+      "comparisons": 1
     }
   ]
 }
