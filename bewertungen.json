@@ -139,8 +139,8 @@
       "category": "Restaurant",
       "extra1": "Zürich",
       "extra2": "Asiatisch",
-      "score": 993.8145243095054,
-      "comparisons": 1
+      "score": 1024.8866403509273,
+      "comparisons": 3
     },
     {
       "id": "15be6ef1-f513-4acd-8e06-788b0cdb452e",
@@ -159,6 +159,15 @@
       "extra2": "Café",
       "score": 1015.3099522205763,
       "comparisons": 1
+    },
+    {
+      "id": "69f79837-5fb5-4008-9ce8-056528c29e6c",
+      "name": "Tibits",
+      "category": "Restaurant",
+      "extra1": "Zürich",
+      "extra2": "Vegetarisch",
+      "score": 968.927883958578,
+      "comparisons": 2
     }
   ]
 }
